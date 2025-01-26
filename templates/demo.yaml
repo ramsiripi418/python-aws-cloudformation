@@ -112,10 +112,3 @@ Resources:
 Parameters:
   VPCId:
     Type: AWS::EC2::VPC::Id
-    
-# Parameters:
-  
-#   MyVpc:
-#     Type: "AWS::EC2::VPC::ID"
-#     Properties:
-#       CidrBlock: "10.0.0.0/16"
