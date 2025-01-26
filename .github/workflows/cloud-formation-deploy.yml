@@ -35,7 +35,8 @@ jobs:
           aws cloudformation deploy \
             --template-file templates/demo.yaml \
             --stack-name my-rds-stack \
-            --capabilities CAPABILITY_NAMED_IAM
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides VPCId=${{ secrets.VPC_ID }}
 
       - name: Describe stack events on failure
         if: failure()
