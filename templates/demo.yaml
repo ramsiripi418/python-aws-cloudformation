@@ -109,6 +109,6 @@ Resources:
       VPCSecurityGroups:
         - !GetAtt MyDBSecurityGroup.GroupId
 
-Parameters:
-  VPCId:
-    Type: AWS::EC2::VPC::Id
+# Parameters:
+#   VPCId:
+#     Type: AWS::EC2::VPC::Id
