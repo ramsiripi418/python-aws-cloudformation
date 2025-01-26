@@ -1,0 +1,41 @@
+Resources:
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
+      EngineVersion: 17.2
+      MasterUsername: dbadmin
+      MasterUserPassword: venkat123
+      DBName: venkatdb
+      AllocatedStorage: '20'
+      VPCSecurityGroups:
+        - !Ref DBSecurityGroup
+      DBParameterGroupName: !Ref DBParameterGroup
+      MultiAZ: false
+      StorageType: gp2
+
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable access to the PostgreSQL database
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '5432'
+          ToPort: '5432'
+          CidrIp: '0.0.0.0/0'
+
+  DBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Family: postgres17
+      Description: PostgreSQL parameter group
+      Parameters:
+        max_connections: '100'
+        shared_buffers: '128'
+
+Parameters:
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC where the RDS instance will be deployed

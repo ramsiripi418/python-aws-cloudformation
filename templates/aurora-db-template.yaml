@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ExistingVPC:
+    Type: 'vpc-0f318dd41e9ac6436'
+    Description: 'The ID of the existing VPC'
+  
+  Subnet1:
+    Type: 'subnet-03be8d903ef194024'
+    Description: 'The ID of the first subnet for the Aurora cluster'
+
+  Subnet2:
+    Type: 'subnet-015f14eb1378612ad'
+    Description: 'The ID of the second subnet for the Aurora cluster'
+
+Resources:
+  # Create a Security Group for Aurora
+  MySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Aurora PostgreSQL Security Group'
+      VpcId: !Ref ExistingVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '5432'
+          ToPort: '5432'
+          CidrIp: '0.0.0.0/0'  # Open to all IPs; consider restricting this to a smaller range for production
+
+  # Create the Aurora Serverless PostgreSQL DB Cluster
+  MyAuroraCluster:
+    Type: 'AWS::RDS::DBCluster'
+    Properties:
+      Engine: aurora-postgresql
+      EngineMode: serverless
+      MasterUsername: 'admin'  # Replace with your admin username
+      MasterUserPassword: 'venkat123'  # Replace with your password
+      DBClusterIdentifier: 'my-aurora-cluster'
+      DBSubnetGroupName: !Ref MyDbSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref MySecurityGroup
+      ScalingConfiguration:
+        MinCapacity: 2  # Aurora Capacity Units (ACUs) min capacity
+        MaxCapacity: 8  # Aurora Capacity Units (ACUs) max capacity
+      EnableHttpEndpoint: true
+      Tags:
+        - Key: Name
+          Value: 'MyAuroraPostgresCluster'
+
+  # Create the DBSubnetGroup for Aurora using the provided subnets
+  MyDbSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: 'My DB Subnet Group'
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+
+Outputs:
+  AuroraClusterEndpoint:
+    Description: 'Aurora PostgreSQL Cluster Endpoint'
+    Value: !GetAtt MyAuroraCluster.Endpoint.Address
+  AuroraClusterPort:
+    Description: 'Aurora PostgreSQL Cluster Port'
+    Value: '5432'
