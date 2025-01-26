@@ -20,6 +20,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Change to your desired region
 
+      - name: Delete failed stack if it exists
+        run: |
+          aws cloudformation delete-stack --stack-name my-rds-stack || true
+          aws cloudformation wait stack-delete-complete --stack-name my-rds-stack || true
+
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
