@@ -86,7 +86,7 @@ Resources:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
       GroupDescription: "Allow access to PostgreSQL"
-      VpcId: !Ref VPCId
+      VpcId: VPC_ID_PLACEHOLDER
       SecurityGroupIngress:
         - IpProtocol: "tcp"
           FromPort: 5432
@@ -102,7 +102,6 @@ Resources:
       MasterUsername: "mydbuser"
       MasterUserPassword: "mydbpassword"
       DBName: "MyDatabase"
-      # VpcId: !Ref MyVpc
       # DBSubnetGroupName: !Ref MyDBSubnetGroup
       PubliclyAccessible: false
       BackupRetentionPeriod: 7
