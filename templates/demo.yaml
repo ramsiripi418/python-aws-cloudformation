@@ -1,41 +1,121 @@
 Resources:
-  DBInstance:
-    Type: AWS::RDS::DBInstance
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
     Properties:
-      DBInstanceClass: db.t3.micro
-      Engine: postgres
-      EngineVersion: 17.2
-      MasterUsername: dbadmin
-      MasterUserPassword: venkat123
-      DBName: venkatdb
-      AllocatedStorage: '20'
-      VPCSecurityGroups:
-        - !Ref DBSecurityGroup
-      DBParameterGroupName: !Ref DBParameterGroup
-      MultiAZ: false
-      StorageType: gp2
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "LambdaExecutionPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"  # Specify allowed Lambda function ARNs here, e.g., "arn:aws:lambda:<region>:<account-id>:function:<function-name>"
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:::*"
 
-  DBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  MyLambdaFunction:
+    Type: "AWS::Lambda::Function"
     Properties:
-      GroupDescription: Enable access to the PostgreSQL database
+      Handler: "index.handler"
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          def handler(event, context):
+              return {
+                  "statusCode": 200,
+                  "body": json.dumps("Hello from Lambda!")
+              }
+      Runtime: "python3.9"
+      Timeout: 15
+
+ 
+  MyApiGateway:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "MyApiGateway"
+ 
+  MyApiGatewayResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt MyApiGateway.RootResourceId
+      PathPart: "hello"
+      RestApiId: !Ref MyApiGateway
+ 
+  MyApiGatewayMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: "NONE"
+      HttpMethod: "GET"
+      ResourceId: !Ref MyApiGatewayResource
+      RestApiId: !Ref MyApiGateway
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub
+          - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations"
+          - { LambdaArn: !GetAtt MyLambdaFunction.Arn }
+ 
+  LambdaApiGatewayPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt MyLambdaFunction.Arn
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub
+        arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApiGateway}/*
+ 
+  # MyVpc:
+  #   Type: "AWS::EC2::VPC"
+  #   Properties:
+  #     CidrBlock: "10.0.0.0/16"
+      
+  MyDBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Allow access to PostgreSQL"
       VpcId: !Ref VPCId
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '5432'
-          ToPort: '5432'
-          CidrIp: '0.0.0.0/0'
+        - IpProtocol: "tcp"
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: "10.0.0.0/16"
 
-  DBParameterGroup:
-    Type: AWS::RDS::DBParameterGroup
+  MyPostgresDB:
+    Type: "AWS::RDS::DBInstance"
     Properties:
-      Family: postgres17
-      Description: PostgreSQL parameter group
-      Parameters:
-        max_connections: '100'
-        shared_buffers: '128'
+      AllocatedStorage: "20"
+      DBInstanceClass: "db.t3.micro"
+      Engine: "postgres"
+      MasterUsername: "mydbuser"
+      MasterUserPassword: "mydbpassword"
+      DBName: "MyDatabase"
+      # VpcId: !Ref MyVpc
+      # DBSubnetGroupName: !Ref MyDBSubnetGroup
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 7
+      VPCSecurityGroups:
+        - !GetAtt MyDBSecurityGroup.GroupId
 
 Parameters:
   VPCId:
     Type: AWS::EC2::VPC::Id
-    Description: The VPC where the RDS instance will be deployed
+    
+# Parameters:
+  
+#   MyVpc:
+#     Type: "AWS::EC2::VPC::ID"
+#     Properties:
+#       CidrBlock: "10.0.0.0/16"
