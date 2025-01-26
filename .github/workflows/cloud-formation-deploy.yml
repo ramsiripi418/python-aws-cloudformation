@@ -24,11 +24,11 @@ jobs:
       #   run: |
       #     sed -i 's/!Ref VPCId/${{ secrets.VPC_ID }}/g' templates/demo.yaml
 
-      - name: Delete failed stack if it exists
-        run: |
-          aws cloudformation describe-stacks --stack-name my-rds-stack && \
-          aws cloudformation delete-stack --stack-name my-rds-stack && \
-          aws cloudformation wait stack-delete-complete --stack-name my-rds-stack || echo "No stack to delete"
+      # - name: Delete failed stack if it exists
+      #   run: |
+      #     aws cloudformation describe-stacks --stack-name my-rds-stack && \
+      #     aws cloudformation delete-stack --stack-name my-rds-stack && \
+      #     aws cloudformation wait stack-delete-complete --stack-name my-rds-stack || echo "No stack to delete"
 
       - name: Deploy CloudFormation stack
         run: |
