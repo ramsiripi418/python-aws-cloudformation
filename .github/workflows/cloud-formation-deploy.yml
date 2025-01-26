@@ -20,9 +20,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Change to your desired region
 
-      - name: Update demo.yaml with VPC ID
-        run: |
-          sed -i 's/!Ref VPCId/${{ secrets.VPC_ID }}/g' templates/demo.yaml
+      # - name: Update demo.yaml with VPC ID
+      #   run: |
+      #     sed -i 's/!Ref VPCId/${{ secrets.VPC_ID }}/g' templates/demo.yaml
 
       - name: Delete failed stack if it exists
         run: |
