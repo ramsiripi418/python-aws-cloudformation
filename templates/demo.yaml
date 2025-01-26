@@ -17,7 +17,7 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "lambda:InvokeFunction"
-                Resource: "*"  # Specify allowed Lambda function ARNs here, e.g., "arn:aws:lambda:<region>:<account-id>:function:<function-name>"
+                Resource: "*"  #Specify allowed Lambda function ARNs here, e.g., "arn:aws:lambda:<region>:<account-id>:function:<function-name>"
               - Effect: "Allow"
                 Action:
                   - "logs:CreateLogGroup"
