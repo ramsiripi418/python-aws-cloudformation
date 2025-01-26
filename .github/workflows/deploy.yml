@@ -20,8 +20,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1  # Replace with your AWS region
 
-    - name: Deploy Lambda function
-      uses: aws-actions/aws-cli-action@v2
-      with:
-        # Replace `my-function` with your Lambda function name and specify the zip file path
-        args: lambda update-function-code --function-name my-function --zip-file fileb://function.zip
+    # - name: Deploy Lambda function
+    #   uses: aws-actions/aws-cli-action@v2
+    #   with:
+    #     # Replace `my-function` with your Lambda function name and specify the zip file path
+    #     args: lambda update-function-code --function-name my-function --zip-file fileb://function.zip
