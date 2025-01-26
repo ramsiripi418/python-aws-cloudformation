@@ -20,11 +20,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}  # Change to your desired region
       
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+
       # - name: Update demo.yaml with VPC ID
       #   run: |
       #     sed -i 's/!Ref VPCId/${{ secrets.VPC_ID }}/g' templates/demo.yaml
@@ -38,7 +38,7 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --template-file templates/demo.yaml \
+            --template-file templates/resource-templates.yaml \
             --stack-name my-rds-stack \
             --capabilities CAPABILITY_NAMED_IAM 
 
